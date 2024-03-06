@@ -1,162 +1,154 @@
-import {
-    issueCreatedConfirmation,
-    issueDescription,
-    issueTitle,
-  } from "../constants/constants";
-  import {
-    backLogList,
-    inputFieldTime,
-    timeTrackingModal,
-    timeTrackingButton,
-  } from "../pages/selectors";
-  
-  const estimatedTime = "10";
-  const estimatedTimeUpdated = "20";
-  const loggedTime = "2";
-  const remainingTime = "5";
-  const loggedTimeUpdated = "3";
-  const remainingTimeUpdated = "4";
-  
-  const estimatedTimeExpectedText = "h estimated";
-  const loggedTimeExpectedText = "h logged";
-  const remainingTimeExpectedText = "h remaining";
-  
-  const shouldShowNoTimeLogged = true;
-  const shouldNotShowEstimatedTime = false;
-  
-  describe("Time-tracking functionality tests of the issue", () => {
+describe('Time estimation functionality', () => {
     beforeEach(() => {
-      cy.visit("/");
-      cy.url()
-        .should("eq", `${Cypress.env("baseUrl")}project/board`)
-        .then((url) => {
-          cy.visit(url + "/board?modal-issue-create=true");
-  
-          // Due to unknown Jira bug we need to create new issue to update time
-          cy.get('[data-testid="modal:issue-create"]').within(() => {
-            cy.get('[data-testid="select:type"]').click();
-            cy.get('[data-testid="select-option:Bug"]').click();
-            cy.get(".ql-editor").type(issueDescription);
-            cy.get('input[name="title"]').type(issueTitle);
-            cy.get('[data-testid="select:userIds"]').click();
-            cy.get('[data-testid="select-option:Lord Gaben"]').click();
-            cy.get('button[type="submit"]').click();
-          });
-  
-          cy.contains(issueCreatedConfirmation).should("be.visible");
-          cy.get(backLogList).should("be.visible").contains(issueTitle).click();
-        });
-    });
-  
-    it("Should add, update and remove estimated time in the issue", () => {
-      validateNoTimeLogged(shouldShowNoTimeLogged);
-      cy.get(inputFieldTime).type(estimatedTime);
-      cy.get(inputFieldTime).should("have.value", estimatedTime);
-      validateTime(estimatedTime, estimatedTimeExpectedText);
-  
-      cy.get(inputFieldTime).clear().type(estimatedTimeUpdated);
-      cy.get(inputFieldTime).should("have.value", estimatedTimeUpdated);
-      validateTime(estimatedTimeUpdated, estimatedTimeExpectedText);
-  
-      cy.get(inputFieldTime).click().clear();
-      validateNoTimeLogged(shouldShowNoTimeLogged);
-    });
-  
-    it("Should add and remove logged time values", () => {
-      const shouldClearTime = true;
-  
-      cy.get(inputFieldTime).type(estimatedTime);
-      cy.get(inputFieldTime).should("have.value", estimatedTime);
-      validateTime(estimatedTime, estimatedTimeExpectedText);
-  
-      // Add initial values to logged and remaining times and validate values after
-      openTimeTrackingAndChangeLoggedTime(loggedTime, remainingTime);
-  
-      validateTime(loggedTime, loggedTimeExpectedText);
-      validateTime(remainingTime, remainingTimeExpectedText);
-      validateTime(
-        estimatedTime,
-        estimatedTimeExpectedText,
-        shouldNotShowEstimatedTime
-      );
-      validateNoTimeLogged();
-  
-      // Edit initial values to logged and remaining times and validate values after
-      openTimeTrackingAndChangeLoggedTime(
-        loggedTimeUpdated,
-        remainingTimeUpdated
-      );
-  
-      validateTime(loggedTimeUpdated, loggedTimeExpectedText);
-      validateTime(remainingTimeUpdated, remainingTimeExpectedText);
-      validateTime(
-        estimatedTime,
-        estimatedTimeExpectedText,
-        shouldNotShowEstimatedTime
-      );
-      validateNoTimeLogged();
-  
-      // Clear the values from logged and remaining times and validate values after
-      openTimeTrackingAndChangeLoggedTime(
-        loggedTime,
-        remainingTime,
-        shouldClearTime
-      );
-  
-      validateTime(
-        loggedTime,
-        loggedTimeExpectedText,
-        shouldNotShowEstimatedTime
-      );
-      validateTime(
-        remainingTime,
-        remainingTimeExpectedText,
-        shouldNotShowEstimatedTime
-      );
-      validateTime(estimatedTime, estimatedTimeExpectedText);
-      validateNoTimeLogged(shouldShowNoTimeLogged);
-    });
-  });
-  
-  function validateTime(
-    timeValue,
-    remainingPartOfString,
-    shouldBeVisible = true
-  ) {
-    if (shouldBeVisible) {
-      cy.contains(`${timeValue}${remainingPartOfString}`).should("be.visible");
-    } else {
-      cy.contains(`${timeValue}${remainingPartOfString}`).should("not.exist");
-    }
-  }
-  
-  function openTimeTrackingAndChangeLoggedTime(
-    loggedTime,
-    remainingTime,
-    shouldClearTime = false
-  ) {
-    cy.get(timeTrackingButton).click();
-    cy.get(timeTrackingModal)
-      .should("be.visible")
-      .within(() => {
-        if (shouldClearTime) {
-          cy.get(inputFieldTime).eq(0).clear();
-          cy.get(inputFieldTime).eq(1).clear();
-        } else {
-          cy.get(inputFieldTime).eq(0).type(loggedTime);
-          cy.get(inputFieldTime).eq(1).type(remainingTime);
-        }
-  
-        cy.contains("button", "Done").click();
+      cy.visit('/');
+      cy.url().should('eq', `${Cypress.env('baseUrl')}project`).then((url) => {
+        cy.visit(url + '/board');
+        cy.contains('This is an issue of type: Task.').click();
       });
-  
-    cy.get(timeTrackingModal).should("not.exist");
-  }
-  
-  function validateNoTimeLogged(shouldShowNoTimeLogged = false) {
-    if (shouldShowNoTimeLogged) {
-      cy.contains("No time logged").should("be.visible");
-    } else {
-      cy.contains("No time logged").should("not.exist");
-    }
-  }
+    })
+        const estimatedHours = '70'
+        const newEstimatedHours = '68'
+        const getIssueDetails = () => cy.get('[data-testid="modal:issue-details"]')
+        const getTimeWindow = () => cy.get('[data-testid="modal:tracking"]')
+        const timeSpent = '96'
+        const newTimeSpent = '69'
+        const timeRemaining = '169'
+        const newTimeRemaining = '170'
+    
+
+    it('Should add, edit and remove time estimation', () =>{
+        
+        
+         //ADDING ESTIMATION
+        getIssueDetails().within(() => {
+            cy.get('.sc-dxgOiQ.HrhWu')
+                .click()
+                .clear()
+                .type(estimatedHours).type('{enter}')
+                
+            cy.get('.sc-dxgOiQ.HrhWu').should('value', estimatedHours)
+            cy.get('.sc-rBLzX.irwmBe').should('contain', estimatedHours)
+            cy.get('.sc-bMvGRv.IstSR').click()
+    
+        })
+        //assert
+        getTimeWindow().within(() => {
+            cy.get('.sc-fhYwyz.jxvanQ').should('contain', estimatedHours)
+            cy.get('[data-testid="icon:close"]')
+            .click()
+            .should('not.exist')
+        })
+
+        //EDITING ESTIMATION
+         getIssueDetails().within(() => {
+            cy.get('.sc-dxgOiQ.HrhWu')
+                .click()
+                .clear()
+                .type(newEstimatedHours).type('{enter}')
+            cy.get('.sc-dxgOiQ.HrhWu').should('value', newEstimatedHours)
+            cy.get('.sc-rBLzX.irwmBe').should('contain', newEstimatedHours)
+            cy.get('.sc-bMvGRv.IstSR').click()
+
+         })
+         //assert
+         getTimeWindow().within(() => {
+            cy.get('.sc-fhYwyz.jxvanQ').should('contain', newEstimatedHours)
+            cy.get('[data-testid="icon:close"]')
+            .click()
+            .should('not.exist')
+        })
+
+        //DELETING ESTIMATION
+        getIssueDetails().within(() => {
+            cy.get('.sc-dxgOiQ.HrhWu')
+                .click()
+                .clear()
+                .type('{enter}')
+            cy.get('.sc-dxgOiQ.HrhWu').should('be.empty')
+                
+            cy.get('.sc-rBLzX.irwmBe') 
+                .find('div') 
+                .should('have.length', 1); 
+                cy.get('.sc-bMvGRv.IstSR').click()
+        })
+        //assert
+        getTimeWindow().within(() => {
+            cy.get('.sc-rBLzX.irwmBe') 
+                .find('div')  
+                .should('have.length', 1); 
+            cy.get('[data-testid="icon:close"]')
+                .click()
+                .should('not.exist')
+        })
+
+        
+    })
+
+    it('Should add, edit and remove time spent and remaining', () =>{
+
+        //ADD TIME SPENT AND REMAINING
+        getIssueDetails().within(() => {
+            cy.get('.sc-bMvGRv.IstSR').click()
+        })
+        getTimeWindow().within(() => {
+            cy.get('input[placeholder="Number"]').first().click().clear().type(timeSpent)
+            cy.get('input[placeholder="Number"]').eq(1).clear().type(timeRemaining)
+        })
+        getTimeWindow().within(() => {
+            cy.contains('button', 'Done')
+                .click()
+                .should('not.exist')
+        })
+        //assert
+            cy.get('.sc-rBLzX.irwmBe').should('contain', timeSpent).and('contain', 'logged')
+            cy.get('.sc-rBLzX.irwmBe').should('contain', timeRemaining).and('contain', 'remaining')
+
+
+
+        //EDIT TIME SPENT AND REMAINING
+        getIssueDetails().within(() => {
+            cy.get('.sc-bMvGRv.IstSR').click()
+        })
+        getTimeWindow().within(() => {
+            cy.get('input[placeholder="Number"]').first().should('have.value', timeSpent).clear().type(newTimeSpent)
+            cy.get('input[placeholder="Number"]').eq(1).should('have.value', timeRemaining).clear().type(newTimeRemaining)
+        })
+        getTimeWindow().within(() => {
+            cy.contains('button', 'Done')
+                .click()
+                .should('not.exist')
+        })
+        //assert
+            cy.get('.sc-rBLzX.irwmBe').should('contain', newTimeSpent).and('contain', 'logged') 
+            cy.get('.sc-rBLzX.irwmBe').should('contain', newTimeRemaining).and('contain', 'remaining')
+        
+
+             
+        //DELETE TIME SPENT AND REMAINING
+        getIssueDetails().within(() => {
+            cy.get('.sc-bMvGRv.IstSR').click()
+        })
+        getTimeWindow().within(() => {
+            cy.get('input[placeholder="Number"]').first().click().clear()
+            cy.get('input[placeholder="Number"]').eq(1).click().clear()
+        })
+        getTimeWindow().within(() => {
+        cy.contains('button', 'Done')
+            .click()
+            .should('not.exist')
+        })
+        //assert
+        cy.get('.sc-rBLzX.irwmBe').should('contain', 'No time logged' )
+        getIssueDetails().within(() => {
+            cy.get('[class="sc-dxgOiQ HrhWu"]')
+                .click()
+                .clear()
+                .type('{enter}')
+            cy.get('.sc-dxgOiQ.HrhWu').should('be.empty')})
+            cy.get('.sc-rBLzX.irwmBe') 
+                .find('div')  
+                .should('have.length', 1);
+
+    })
+
+})
